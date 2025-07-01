@@ -1,7 +1,15 @@
 import { FastifyInstance } from 'fastify';
+import { pool } from '../database'; // ajuste o caminho conforme seu projeto
 
-export default async function clientesRoutes(app: FastifyInstance) {
+async function clientesRoutes(app: FastifyInstance) {
   app.get('/', async (request, reply) => {
-    return { message: 'Rota de clientes funcionando!' };
+    try {
+      const [rows] = await pool.query('SELECT * FROM clientes');
+      return rows;  // retorna os clientes do banco
+    } catch (error) {
+      reply.status(500).send({ error: 'Erro ao buscar clientes' });
+    }
   });
 }
+
+export default clientesRoutes;

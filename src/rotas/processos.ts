@@ -1,7 +1,15 @@
 import { FastifyInstance } from 'fastify';
+import { pool } from '../database'; // ajuste o caminho conforme seu projeto
 
-export default async function processossRoutes(app: FastifyInstance) {
+async function processosRoutes(app: FastifyInstance) {
   app.get('/', async (request, reply) => {
-    return { message: 'Rota de processos funcionando!' };
+    try {
+      const [rows] = await pool.query('SELECT * FROM processos_juridicos ');
+      return rows;  // retorna os processos  do banco
+    } catch (error) {
+      reply.status(500).send({ error: 'Erro ao buscar processos ' });
+    }
   });
 }
+
+export default processosRoutes;

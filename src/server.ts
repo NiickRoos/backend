@@ -1,10 +1,34 @@
+import Fastify from 'fastify';
+import advogadosRoutes from './rotas/advogados';
+import clientesRoutes from './rotas/clientes';
+import documentosRoutes from './rotas/documentos';
+import audienciasRoutes from './rotas/audiencias';
+import processosRoutes from './rotas/processos';
+import areasRoutes from './rotas/areas';
 
-import app from './app';
+const app = Fastify({ logger: true });
 
-app.listen({ port: 3000 }, (err, address) => {
-  if (err) {
-    console.error('Erro ao iniciar o servidor:', err);
+// Rota raiz só pra testar
+app.get('/', async () => {
+  return { message: 'API rodando com Fastify!' };
+});
+
+// Registrando todas as rotas com prefixos
+app.register(clientesRoutes, { prefix: '/clientes' });
+app.register(documentosRoutes, { prefix: '/documentos' });
+app.register(audienciasRoutes, { prefix: '/audiencias' });
+app.register(processosRoutes, { prefix: '/processos' });
+app.register(areasRoutes, { prefix: '/areas' });
+app.register(advogadosRoutes, { prefix: '/advogados' });
+
+const start = async () => {
+  try {
+    await app.listen({ port: 3000 });
+    console.log('Servidor rodando na porta 3000');
+  } catch (err) {
+    app.log.error(err);
     process.exit(1);
   }
-  console.log(`🚀 Servidor rodando em: ${address}`);
-});
+};
+
+start();

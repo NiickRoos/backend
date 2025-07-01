@@ -1,7 +1,15 @@
 import { FastifyInstance } from 'fastify';
+import { pool } from '../database'; // ajuste o caminho conforme seu projeto
 
-export default async function audienciasRoutes(app: FastifyInstance) {
+async function audienciasRoutes(app: FastifyInstance) {
   app.get('/', async (request, reply) => {
-    return { message: 'Rota de audiencia funcionando!' };
+    try {
+      const [rows] = await pool.query('SELECT * FROM audiencias');
+      return rows;  // retorna os audiencias do banco
+    } catch (error) {
+      reply.status(500).send({ error: 'Erro ao buscar audiencias' });
+    }
   });
 }
+
+export default audienciasRoutes;
