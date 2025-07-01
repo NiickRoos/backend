@@ -1,11 +1,7 @@
 import mysql from 'mysql2/promise';
 
 
-/*importação de uma biblioteca dotenv  é uma boa prática muito recomendada, especialmente para:
-Manter segredos (como usuário e senha do banco) fora do código fonte
-Facilitar a troca de configurações entre ambientes (desenvolvimento, produção)
-Evitar que dados sensíveis sejam enviados ao GitHub
-*/
+/*implemetação da biblioteca dotenv*/
 
 import dotenv from 'dotenv';
 dotenv.config();
