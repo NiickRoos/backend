@@ -3,7 +3,7 @@ import { pool } from '../database';
 
 async function processosRoutes(app: FastifyInstance) {
 
-  // Rota GET para buscar processos (opcional, você já tem)
+  // GET /processos
   app.get('/', async (request, reply) => {
     try {
       const [rows] = await pool.query('SELECT * FROM processos');
@@ -13,7 +13,7 @@ async function processosRoutes(app: FastifyInstance) {
     }
   });
 
-  // Rota POST para cadastrar processo
+  // POST /processos/cadastrar
   app.post('/cadastrar', async (request, reply) => {
     try {
       const {
@@ -36,12 +36,10 @@ async function processosRoutes(app: FastifyInstance) {
         Areas_idareas: number;
       };
 
-      // Validação simples
       if (!numero_processo || !descricao || !status || !data_abertura || !Clientes_idClientes || !Advogados_idAdvogados || !Areas_idareas) {
         return reply.status(400).send({ error: 'Campos obrigatórios faltando' });
       }
 
-      // Monta a query - trata data_encerramento como opcional
       const query = `
         INSERT INTO processos 
         (numero_processo, descricao, status, data_abertura, data_encerramento, Clientes_idClientes, Advogados_idAdvogados, Areas_idareas) 
