@@ -14,7 +14,8 @@ const start = async () => {
   try {
     // Registrar CORS - liberar o frontend apenas na porta 5173 (recomendado)
     await app.register(fastifyCors, {
-      origin: 'http://localhost:5173'
+      origin: 'http://localhost:5173',
+      methods: ['GET', 'POST', 'PUT', 'DELETE','OPTIONS'],
     });
 
     // Rota raiz apenas para teste rápido
