@@ -5,6 +5,7 @@ import advogadosRoutes from './rotas/advogados';
 import clientesRoutes from './rotas/clientes';
 import processosRoutes from './rotas/processos';
 import areasRoutes from './rotas/areas';
+import relatoriosRoutes from './rotas/relatorios';
 
 const app = Fastify({
   logger: true
@@ -28,6 +29,7 @@ const start = async () => {
     app.register(clientesRoutes, { prefix: '/clientes' });
     app.register(processosRoutes, { prefix: '/processos' });
     app.register(areasRoutes, { prefix: '/areas' });
+    app.register(relatoriosRoutes, { prefix: '/relatorios' });
 
     // Escutando na porta 3000
     await app.listen({ port: 3000, host: '0.0.0.0' });
