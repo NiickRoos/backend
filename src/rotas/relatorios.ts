@@ -1,29 +1,30 @@
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyInstance } from 'fastify';
+import { pool } from '../database';
 
-const relatoriosRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/relatorios/processos-por-cliente', async (request, reply) => {
+async function relatoriosRoutes(app: FastifyInstance) {
+  app.get('/', async (request, reply) => {  // <-- aqui é '/' e não '/relatorios'
     try {
-      const [rows] = await fastify.mysql.query<{
-        idClientes: number;
-        nome_cliente: string;
-        total_processos: number;
-      }[]>(`
-        SELECT
-          c.idClientes,
-          c.nome AS nome_cliente,
-          COUNT(p.idprocessos) AS total_processos
-        FROM Clientes c
-        INNER JOIN Processos p ON c.idClientes = p.Clientes_idClientes
-        GROUP BY c.idClientes, c.nome
-        ORDER BY total_processos DESC
+      const [rows] = await pool.query(`
+        SELECT 
+          processos.numero_processo,
+          processos.status,
+          clientes.nome AS cliente,
+          advogados.nome AS advogado,
+          areas.nome AS area,
+          processos.data_abertura,
+          processos.data_encerramento
+        FROM processos
+        INNER JOIN clientes ON processos.Clientes_idClientes = clientes.idClientes
+        INNER JOIN advogados ON processos.Advogados_idAdvogados = advogados.idAdvogados
+        INNER JOIN areas ON processos.Areas_idareas = areas.idareas
       `);
 
-      reply.send(rows);
+      return rows;
     } catch (error) {
-      request.log.error(error);
-      reply.status(500).send({ message: 'Erro ao buscar relatório' });
+      console.error('Erro no relatório:', error);
+      reply.status(500).send({ error: 'Erro ao tentar gerar o relatorio' });
     }
   });
-};
+}
 
 export default relatoriosRoutes;
