@@ -6,7 +6,7 @@ async function processosRoutes(app: FastifyInstance) {
   // GET /processos
   app.get('/', async (request, reply) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM processos');
+      const [rows] = await pool.query('SELECT * FROM Processos');
       return rows;
     } catch (error) {
       reply.status(500).send({ error: 'Erro ao buscar processos' });
@@ -22,27 +22,28 @@ async function processosRoutes(app: FastifyInstance) {
         status,
         data_abertura,
         data_encerramento,
+        area,
         Clientes_idClientes,
-        Advogados_idAdvogados,
-        Areas_idareas
+        Advogados_idAdvogados
       } = request.body as {
         numero_processo: string;
         descricao: string;
-        status: string;
-        data_abertura: string;
-        data_encerramento?: string;
+        status: 'Em andamento' | 'Finalizado' | 'Arquivado';
+        data_abertura: string; // formato 'YYYY-MM-DD'
+        data_encerramento?: string | null;
+        area: 'Direito Civil' | 'Direito Penal' | 'Direito Trabalhista' | 'Direito Empresarial';
         Clientes_idClientes: number;
         Advogados_idAdvogados: number;
-        Areas_idareas: number;
       };
 
-      if (!numero_processo || !descricao || !status || !data_abertura || !Clientes_idClientes || !Advogados_idAdvogados || !Areas_idareas) {
+      // Validar campos obrigatórios
+      if (!numero_processo || !descricao || !status || !data_abertura || !area || !Clientes_idClientes || !Advogados_idAdvogados) {
         return reply.status(400).send({ error: 'Campos obrigatórios faltando' });
       }
 
       const query = `
-        INSERT INTO processos 
-        (numero_processo, descricao, status, data_abertura, data_encerramento, Clientes_idClientes, Advogados_idAdvogados, Areas_idareas) 
+        INSERT INTO Processos 
+        (numero_processo, descricao, status, data_abertura, data_encerramento, area, Clientes_idClientes, Advogados_idAdvogados) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
@@ -52,9 +53,9 @@ async function processosRoutes(app: FastifyInstance) {
         status,
         data_abertura,
         data_encerramento || null,
+        area,
         Clientes_idClientes,
-        Advogados_idAdvogados,
-        Areas_idareas
+        Advogados_idAdvogados
       ];
 
       const [result] = await pool.query(query, values);
@@ -78,27 +79,27 @@ async function processosRoutes(app: FastifyInstance) {
         status,
         data_abertura,
         data_encerramento,
+        area,
         Clientes_idClientes,
-        Advogados_idAdvogados,
-        Areas_idareas
+        Advogados_idAdvogados
       } = request.body as {
         numero_processo: string;
         descricao: string;
-        status: string;
+        status: 'Em andamento' | 'Finalizado' | 'Arquivado';
         data_abertura: string;
-        data_encerramento?: string;
+        data_encerramento?: string | null;
+        area: 'Direito Civil' | 'Direito Penal' | 'Direito Trabalhista' | 'Direito Empresarial';
         Clientes_idClientes: number;
         Advogados_idAdvogados: number;
-        Areas_idareas: number;
       };
 
-      if (!numero_processo || !descricao || !status || !data_abertura || !Clientes_idClientes || !Advogados_idAdvogados || !Areas_idareas) {
+      if (!numero_processo || !descricao || !status || !data_abertura || !area || !Clientes_idClientes || !Advogados_idAdvogados) {
         return reply.status(400).send({ error: 'Campos obrigatórios faltando' });
       }
 
       const query = `
-        UPDATE processos
-        SET numero_processo = ?, descricao = ?, status = ?, data_abertura = ?, data_encerramento = ?, Clientes_idClientes = ?, Advogados_idAdvogados = ?, Areas_idareas = ?
+        UPDATE Processos
+        SET numero_processo = ?, descricao = ?, status = ?, data_abertura = ?, data_encerramento = ?, area = ?, Clientes_idClientes = ?, Advogados_idAdvogados = ?
         WHERE idprocessos = ?
       `;
 
@@ -108,9 +109,9 @@ async function processosRoutes(app: FastifyInstance) {
         status,
         data_abertura,
         data_encerramento || null,
+        area,
         Clientes_idClientes,
         Advogados_idAdvogados,
-        Areas_idareas,
         id
       ];
 
@@ -129,7 +130,7 @@ async function processosRoutes(app: FastifyInstance) {
     try {
       const id = Number(request.params.id);
 
-      const query = 'DELETE FROM processos WHERE idprocessos = ?';
+      const query = 'DELETE FROM Processos WHERE idprocessos = ?';
       await pool.query(query, [id]);
 
       return reply.send({ message: 'Processo deletado com sucesso' });

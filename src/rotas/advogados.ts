@@ -78,20 +78,27 @@ async function advogadosRoutes(app: FastifyInstance) {
   });
 
   // Deletar advogado
-  app.delete('/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply) => {
-    try {
-      const id = Number(request.params.id);
+// Deletar advogado
+app.delete('/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply) => {
+  try {
+    const id = Number(request.params.id);
 
-      const query = 'DELETE FROM advogados WHERE idAdvogados = ?';
-      await pool.query(query, [id]);
+    const query = 'DELETE FROM advogados WHERE idAdvogados = ?';
+    await pool.query(query, [id]);
 
-      return reply.send({ message: 'Advogado deletado com sucesso' });
+    return reply.send({ message: 'Advogado deletado com sucesso' });
 
-    } catch (error) {
-      console.error(error);
-      reply.status(500).send({ error: 'Erro ao deletar advogado' });
+  } catch (error: any) {
+    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+      return reply.status(400).send({
+        error: 'Este advogado está vinculado a um ou mais processos. Altere o advogado dos processos antes de excluí-lo.'
+      });
     }
-  });
-}
 
+    console.error('Erro ao deletar advogado:', error);
+    return reply.status(500).send({ error: 'Erro interno ao deletar advogado.' });
+  }
+});
+
+}
 export default advogadosRoutes;
