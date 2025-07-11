@@ -143,7 +143,7 @@ app.post('/cadastrar', async (request, reply) => {
 
     } catch (error) {
       console.error(error);
-      reply.status(500).send({ error: 'Erro ao atualizar processo' });
+      reply.status(500).send({ error: 'Erro ao atualizar processo, verifique o id do advogado e do cliente, certifique-se de que existam' });
     }
   });
 
